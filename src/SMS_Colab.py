@@ -1,5 +1,7 @@
-
-# SMS Spam Detection: Comparison of 7 ML Algorithms
+# Comparison of Machine Learning Algorithms for Spam Detection with Multimodal Input Support
+# Researcher: Chhavi Kumari (UID: 25MCA20323)
+# Institution: University Institute of Computing, Chandigarh University, Punjab, India
+# SMS Spam Detection: Comparison of 7 ML Algorithms (Google Colab Version)
 
 from google.colab import files
 import pandas as pd
@@ -142,9 +144,6 @@ print(classification_report(
 ))
 
 # 9. Professional comparison graph
-# Y-axis begins at 0 to preserve an honest visual scale.
-# Percentage labels make differences easier to read.
-
 metrics = ["Accuracy", "Precision", "Recall", "F1-Score"]
 plot_df = results_df.set_index("Algorithm")[metrics]
 plot_df = plot_df.loc[

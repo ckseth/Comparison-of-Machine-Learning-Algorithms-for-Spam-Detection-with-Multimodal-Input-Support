@@ -20,3 +20,4 @@ Evaluation of Seven Machine Learning Algorithms on the UCI SMS Spam Collection D
 2. **Support Vector Machine (LinearSVC)** was the closest competitor with an F1-score of **91.06%** and balanced recall (**85.50%**).
 3. **Naive Bayes, Gradient Boosting, and KNN** maintained **100.00% Precision**, ensuring that legitimate emails/SMS (`ham`) are virtually never flagged as spam by mistake.
 4. The Confusion Matrix demonstrates minimal misclassifications under the best-performing ensemble architecture.
+

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2024 Anshika Chamoli, Rahul Chauhan, Niharika Bisht, Swati Devliyal, Ravi Ranjan Kumar
+Copyright (c) 2024-2026 Chhavi Kumari
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+Note: This license applies strictly to the source code, scripts, and documentation
+authored by Chhavi Kumari for this MCA research project. Datasets included or
+referenced in this repository (such as the UCI SMS Spam Collection) remain subject
+to their respective original licenses, terms, and academic citations.

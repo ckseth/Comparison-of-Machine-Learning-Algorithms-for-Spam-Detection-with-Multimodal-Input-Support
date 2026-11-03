@@ -1,5 +1,7 @@
-# SMS Spam Detection: Comparison of 7 ML Algorithms
-# Research implementation for APCIT 2024 / IEEE
+# Comparison of Machine Learning Algorithms for Spam Detection with Multimodal Input Support
+# Researcher: Chhavi Kumari (UID: 25MCA20323)
+# Institution: University Institute of Computing, Chandigarh University, Punjab, India
+# SMS Spam Detection: Comparison of 7 Machine Learning Algorithms
 
 import os
 import sys
@@ -34,14 +36,14 @@ if IN_COLAB:
     uploaded = files.upload()
     filename = next(iter(uploaded))
 else:
-    if os.path.exists("SMSSpamCollection"):
-        filename = "SMSSpamCollection"
-    elif os.path.exists(os.path.join("dataset", "SMSSpamCollection")):
+    if os.path.exists(os.path.join("dataset", "SMSSpamCollection")):
         filename = os.path.join("dataset", "SMSSpamCollection")
+    elif os.path.exists("SMSSpamCollection"):
+        filename = "SMSSpamCollection"
     elif len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
         filename = sys.argv[1]
     else:
-        filename = "SMSSpamCollection"
+        filename = os.path.join("dataset", "SMSSpamCollection")
     print(f"Using dataset: {filename}")
 
 # 2. Read and clean dataset
@@ -213,7 +215,10 @@ for spine in ["top", "right"]:
     ax.spines[spine].set_visible(False)
 
 plt.tight_layout()
-plt.savefig("model_comparison.png", dpi=300, bbox_inches="tight")
+fig_dir = "figures" if os.path.isdir("figures") else "."
+res_dir = "results" if os.path.isdir("results") else "."
+comp_path = os.path.join(fig_dir, "model_comparison.png")
+plt.savefig(comp_path, dpi=300, bbox_inches="tight")
 plt.show()
 
 # 10. Confusion matrix of highest-F1 model
@@ -225,15 +230,18 @@ ConfusionMatrixDisplay.from_predictions(
 )
 ax.set_title(f"Confusion Matrix - {best_name}", fontweight="bold")
 plt.tight_layout()
-plt.savefig("confusion_matrix.png", dpi=300, bbox_inches="tight")
+cm_path = os.path.join(fig_dir, "confusion_matrix.png")
+plt.savefig(cm_path, dpi=300, bbox_inches="tight")
 plt.show()
 
 # 11. Save research results
-results_df.to_csv("model_comparison_results.csv", index=False)
-print("\nResults and figures saved successfully.")
+csv_path = os.path.join(res_dir, "model_comparison_results.csv")
+results_df.to_csv(csv_path, index=False)
+print(f"\nResults saved to: {csv_path}")
+print(f"Figures saved to: {comp_path} and {cm_path}")
 
 # 12. Colab Download support (if running in Google Colab)
 if IN_COLAB:
-    files.download("model_comparison_results.csv")
-    files.download("model_comparison.png")
-    files.download("confusion_matrix.png")
+    files.download(csv_path)
+    files.download(comp_path)
+    files.download(cm_path)

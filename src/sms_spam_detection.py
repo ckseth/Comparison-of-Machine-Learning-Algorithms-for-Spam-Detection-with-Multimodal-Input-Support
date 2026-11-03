@@ -1,8 +1,8 @@
 """
 SMS Spam Detection: Comparison of 7 Machine Learning Algorithms
-Research Implementation for:
-'Comparison of Machine Learning Algorithms for Spam Detection with Multimodal Input Support'
-APCIT 2024 / IEEE
+Project Title: Comparison of Machine Learning Algorithms for Spam Detection with Multimodal Input Support
+Researcher: Chhavi Kumari (UID: 25MCA20323)
+Institution: University Institute of Computing, Chandigarh University, Punjab, India
 """
 
 import os

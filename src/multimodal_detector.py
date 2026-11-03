@@ -1,8 +1,9 @@
 """
 Multimodal Spam Detection Pipeline
 Implementation supporting Text, PDF documents, and Image OCR inputs.
-Paper: 'Comparison of Machine Learning Algorithms for Spam Detection with Multimodal Input Support'
-APCIT 2024 / IEEE
+Project Title: Comparison of Machine Learning Algorithms for Spam Detection with Multimodal Input Support
+Researcher: Chhavi Kumari (UID: 25MCA20323)
+Institution: University Institute of Computing, Chandigarh University, Punjab, India
 """
 
 import os
@@ -16,7 +17,12 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 class MultimodalSpamDetector:
-    """Multimodal Spam Detector supporting Text, PDF documents, and Images (OCR)."""
+    """
+    Application-level Multimodal Spam Detector supporting:
+    - Text (direct input or text file)
+    - Digital PDF (text extraction via PyMuPDF)
+    - Images / Scanned documents (OCR via Tesseract)
+    """
 
     def __init__(self, dataset_path: Optional[str] = None):
         self.vectorizer = TfidfVectorizer(max_features=3000, ngram_range=(1, 2), min_df=2, stop_words="english")
@@ -40,11 +46,27 @@ class MultimodalSpamDetector:
         print("[OK] MultimodalSpamDetector successfully trained.")
 
     def extract_text_from_pdf(self, pdf_path: str) -> str:
-        """Extract plain text from a PDF document."""
+        """Extract plain text from a digital PDF using PyMuPDF (fitz) with fallbacks."""
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
         extracted_text = []
+
+        # 1. Primary: PyMuPDF (fitz)
+        try:
+            import fitz  # PyMuPDF
+            doc = fitz.open(pdf_path)
+            for page in doc:
+                text = page.get_text()
+                if text:
+                    extracted_text.append(text)
+            doc.close()
+            if extracted_text:
+                return "\n".join(extracted_text).strip()
+        except ImportError:
+            pass
+
+        # 2. Fallback: pypdf / PyPDF2
         try:
             import pypdf
             reader = pypdf.PdfReader(pdf_path)
@@ -52,24 +74,32 @@ class MultimodalSpamDetector:
                 txt = page.extract_text()
                 if txt:
                     extracted_text.append(txt)
+            if extracted_text:
+                return "\n".join(extracted_text).strip()
         except ImportError:
-            try:
-                import PyPDF2
-                reader = PyPDF2.PdfReader(pdf_path)
-                for page in reader.pages:
-                    txt = page.extract_text()
-                    if txt:
-                        extracted_text.append(txt)
-            except ImportError:
-                print("Warning: Neither 'pypdf' nor 'PyPDF2' is installed. Reading binary text fallback.")
-                with open(pdf_path, "rb") as f:
-                    content = f.read().decode("latin1", errors="ignore")
-                    extracted_text.append(content[:1000])
+            pass
+
+        try:
+            import PyPDF2
+            reader = PyPDF2.PdfReader(pdf_path)
+            for page in reader.pages:
+                txt = page.extract_text()
+                if txt:
+                    extracted_text.append(txt)
+            if extracted_text:
+                return "\n".join(extracted_text).strip()
+        except ImportError:
+            pass
+
+        # 3. Fallback: binary read
+        with open(pdf_path, "rb") as f:
+            content = f.read().decode("latin1", errors="ignore")
+            extracted_text.append(content[:1000])
 
         return "\n".join(extracted_text).strip()
 
     def extract_text_from_image(self, image_path: str) -> str:
-        """Extract text from an image using Optical Character Recognition (OCR)."""
+        """Extract text from an image using Optical Character Recognition (Tesseract OCR)."""
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image file not found: {image_path}")
 
@@ -84,19 +114,16 @@ class MultimodalSpamDetector:
             return ""
 
     def analyze_spam_indicators(self, text: str) -> Dict[str, Any]:
-        """Analyze text for heuristic spam indicators and summarization."""
-        # Find URLs
+        """Analyze extracted text for heuristic spam indicators (URLs, phone numbers, spam keywords)."""
         urls = re.findall(r"https?://\S+|www\.\S+", text)
-        # Find Phone numbers / short codes
         phones = re.findall(r"\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b|\b\d{5,6}\b", text)
-        # Check high-risk spam keywords
-        spam_keywords = ["free", "win", "winner", "prize", "cash", "urgent", "claim", "congratulations", "offer", "discount"]
+        spam_keywords = ["free", "win", "winner", "prize", "cash", "urgent", "claim", "congratulations", "offer", "discount", "call now"]
         found_keywords = [kw for kw in spam_keywords if re.search(r"\b" + kw + r"\b", text, re.IGNORECASE)]
 
-        summary = text[:200] + ("..." if len(text) > 200 else "")
+        preview = text[:200] + ("..." if len(text) > 200 else "")
 
         return {
-            "summary": summary,
+            "text_preview": preview,
             "char_count": len(text),
             "word_count": len(text.split()),
             "urls_detected": urls,
@@ -132,6 +159,7 @@ class MultimodalSpamDetector:
     def process_multimodal_input(self, input_path_or_text: str, modality: str = "text") -> Dict[str, Any]:
         """
         Process any input according to its modality ('text', 'pdf', or 'image').
+        Workflow: Text / PDF / Image -> Text Extraction / OCR -> Text Preprocessing -> TF-IDF -> Classifier -> Prediction
         """
         modality = modality.lower()
         if modality == "pdf":
@@ -155,7 +183,8 @@ class MultimodalSpamDetector:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Multimodal Spam Detector CLI")
-    parser.add_argument("--dataset", type=str, default="SMSSpamCollection", help="Path to SMSSpamCollection")
+    default_ds = "dataset/SMSSpamCollection" if os.path.exists("dataset/SMSSpamCollection") else "SMSSpamCollection"
+    parser.add_argument("--dataset", type=str, default=default_ds, help="Path to SMSSpamCollection")
     parser.add_argument("--input", type=str, default="Free entry in 2 a wkly comp to win FA Cup final tickets! Text FA to 87121", help="Input text or file path")
     parser.add_argument("--modality", type=str, default="text", choices=["text", "pdf", "image"], help="Input modality type")
     args = parser.parse_args()
